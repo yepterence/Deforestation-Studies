@@ -30,19 +30,23 @@ WHERE a.year = 1990
  AND b.country_name = 'World'
 LIMIT 1;
 
--- TO-DO fix query in this section 
+
 -- compare the amount of forest area lost between 1990 and 2016, to which country's total area in 2016 is it closest to:
-SELECT ( a.forest_area_sqkm-b.forest_area_sqkm ) AS loss_sqkm,
- ( a.forest_area_sqkm-b.forest_area_sqkm ) * 100 / a.forest_area_sqkm
- loss_percent
+WITH ar_lost AS (SELECT b.year , ( a.forest_area_sqkm-b.forest_area_sqkm ) AS loss_sqkm
 FROM forestation a,
  forestation b
 WHERE a.year = 1990
  AND b.year = 2016
  AND a.country_name = 'World'
  AND b.country_name = 'World'
+LIMIT 1)
+SELECT f.country_name, f.total_land_area
+FROM forestation f
+JOIN ar_lost
+ON f.year = ar_lost.year
+WHERE f.total_land_area < ar_lost.loss_sqkm
+ORDER BY 3 DESC
 LIMIT 1;
-
 
 -- percent change in forest area of the world between 1990 and 2016:
 SELECT year_recorded, country, region_name, (land_area-forest_area)/land_area *100 pct_forest_area

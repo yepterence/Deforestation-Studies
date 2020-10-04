@@ -79,7 +79,7 @@ SELECT (total_forest/total_land)*100 pct_forest_world
 FROM(SELECT f.year year_recorded,  SUM(forest_area_sqkm) total_forest, SUM(total_land_area) total_land
 FROM forestation f
 WHERE f.year = 1990 AND f.country_name = 'World' 
-GROUP BY 1) fa_2016
+GROUP BY 1) fa_1990
 
 
 -- Which region had the HIGHEST percent forest in 1990, and which had the LOWEST, to 2 decimal places?
@@ -91,6 +91,9 @@ ORDER BY 3 DESC
 LIMIT 1;
 
 -- Based on the table you created, which regions of the world DECREASED in forest area from 1990 to 2016
+
+CREATE VIEW region_pct_diff
+AS
 WITH fa_1990 AS
 (SELECT f.region region_name, (SUM(f.forest_area_sqkm)/SUM(f.total_land_area))*100 pct_forest 
 FROM forestation f
@@ -106,9 +109,18 @@ GROUP BY 1
 ORDER BY 2 DESC
 )
 
-SELECT fa_2016.region_name, fa_1990.pct_forest forest_pct_1990, fa_2016.pct_forest forest_pct_2016
+SELECT fa_2016.region_name, ROUND(fa_1990.pct_forest::numeric,2) forest_pct_1990, ROUND(fa_2016.pct_forest::numeric,2) forest_pct_2016
+-- using ::numeric casts the float8 value to numeric which can then be rounded down to two digits.
 FROM fa_1990 
 JOIN fa_2016 
 ON fa_2016.region_name = fa_1990.region_name
 WHERE fa_2016.region_name NOT LIKE 'World';
+
+-- which regions of the world DECREASED in forest area from 1990 to 2016?
+
+SELECT region_name regions, forest_pct_1990 1990_forest_pct, forest_pct_2016 2016_forest_pct
+FROM region_pct_diff
+WHERE forest_pct_1990 - forest_pct_2016 > 0;
+
+
 

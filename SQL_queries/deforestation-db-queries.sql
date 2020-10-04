@@ -3,7 +3,7 @@
 -- Create a view named forestation that combines all 3 tables in dataset
 CREATE VIEW forestation
 AS
-SELECT f.country_code, f.country_name, f.year, r.income_group, r.region, f.forest_area_sqkm, COALESCE(land_tab.total_land_area,0.01) total_land_area, f.forest_area_sqkm/total_land_area pct_forest_area
+SELECT f.country_code, f.country_name, f.year, r.income_group, r.region, f.forest_area_sqkm, COALESCE(land_tab.total_land_area,0.01) total_land_area, ROUND(f.forest_area_sqkm*100/total_land_area)::numeric, 2) pct_forest_area
 FROM (SELECT country_code, year, country_name, (total_area_sq_mi * 2.59) total_land_area FROM land_area) land_tab
 JOIN forest_area f
 ON f.year = land_tab.year AND f.country_code = land_tab.country_code
@@ -161,3 +161,31 @@ LIMIT 5;
   WHERE c_fa_1990.fa_1990 - c_fa_2016.fa_2016 IS NOT NULL AND country_name NOT LIKE 'World'
   ORDER BY fa_loss DESC
   LIMIT 5;
+
+--   List all of the countries that were in the 4th quartile (percent forest > 75%) in 2016
+SELECT country_name, region, pct_forest_area
+FROM forestation 
+WHERE pct_forest_area > 75 AND year = 2016
+ORDER BY 3 DESC
+
+-- Number of countries in each quartile
+-- Q1
+SELECT COUNT(*)
+FROM forestation 
+WHERE pct_forest_area < 25 AND year = 2016 
+
+-- Q2
+SELECT COUNT(*)
+FROM forestation 
+WHERE pct_forest_area BETWEEN 25 AND 50 AND year = 2016
+
+-- Q3
+SELECT COUNT(*)
+FROM forestation 
+WHERE pct_forest_area BETWEEN 50 AND 75 AND year = 2016
+
+-- Q4 
+SELECT COUNT(*)
+FROM forestation 
+WHERE pct_forest_area > 75 AND year = 2016
+-- How many countries had a percent forestation higher than the United States in 2016? 

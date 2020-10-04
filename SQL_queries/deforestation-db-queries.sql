@@ -122,5 +122,42 @@ SELECT region_name regions, forest_pct_1990 1990_forest_pct, forest_pct_2016 201
 FROM region_pct_diff
 WHERE forest_pct_1990 - forest_pct_2016 > 0;
 
+-- COUNTRY LEVEL DETAILS
+-- Which 5 countries saw the largest amount decrease in forest area from 1990 to 2016? 
+-- What was the difference in forest area for each?
 
+WITH c_fa_1990 AS
+(SELECT country_name, forest_area_sqkm fa_1990
+FROM forestation 
+WHERE year = 1990),
+c_fa_2016 AS
+(SELECT country_name countries, forest_area_sqkm fa_2016
+FROM forestation 
+WHERE year = 2016)
 
+SELECT country_name countries, ROUND((c_fa_1990.fa_1990 - c_fa_2016.fa_2016)::numeric,2) AS fa_loss
+FROM c_fa_1990
+JOIN c_fa_2016
+ON c_fa_2016.countries = c_fa_1990.country_name
+WHERE c_fa_1990.fa_1990 - c_fa_2016.fa_2016 IS NOT NULL AND country_name NOT LIKE 'World'
+ORDER BY fa_loss DESC
+LIMIT 5;
+
+-- Which 5 countries saw the largest percent decrease in forest area from 1990 to 2016? 
+-- What was the percent change to 2 decimal places for each?
+  WITH c_fa_1990 AS
+  (SELECT country_name, forest_area_sqkm fa_1990
+  FROM forestation 
+  WHERE year = 1990),
+  c_fa_2016 AS
+  (SELECT country_name countries, forest_area_sqkm fa_2016
+  FROM forestation 
+  WHERE year = 2016)
+
+  SELECT country_name countries, ROUND(((c_fa_1990.fa_1990 - c_fa_2016.fa_2016)*100/c_fa_1990.fa_1990)::numeric,2) AS pct_fa_loss
+  FROM c_fa_1990
+  JOIN c_fa_2016
+  ON c_fa_2016.countries = c_fa_1990.country_name
+  WHERE c_fa_1990.fa_1990 - c_fa_2016.fa_2016 IS NOT NULL AND country_name NOT LIKE 'World'
+  ORDER BY fa_loss DESC
+  LIMIT 5;

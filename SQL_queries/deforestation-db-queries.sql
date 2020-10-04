@@ -188,4 +188,14 @@ WHERE pct_forest_area BETWEEN 50 AND 75 AND year = 2016
 SELECT COUNT(*)
 FROM forestation 
 WHERE pct_forest_area > 75 AND year = 2016
+
 -- How many countries had a percent forestation higher than the United States in 2016? 
+
+WITH usa_forest AS (SELECT year, pct_forest_area 
+FROM forestation 
+WHERE country_name LIKE '%United States%' AND year = 2016)
+SELECT COUNT(*)
+FROM forestation f
+JOIN usa_forest uf
+ON uf.year = f.year 
+WHERE f.forest_area_sqkm > uf.pct_forest_area 

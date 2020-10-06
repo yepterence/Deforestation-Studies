@@ -175,26 +175,17 @@ FROM forestation
 WHERE pct_forest_area > 75 AND year = 2016
 ORDER BY 3 DESC;
 
--- Number of countries in each quartile
--- Q1
-SELECT COUNT(*)
-FROM forestation 
-WHERE pct_forest_area < 25 AND year = 2016 ;
+-- Number of countries grouped in their respective forested_area percentile range
+-- Using CASE WHEN to include if-else logic allows us to filter on multiple clauses at the same time
 
--- Q2
-SELECT COUNT(*)
+SELECT CASE WHEN pct_forest_area < 25 THEN 'Q1' 
+WHEN pct_forest_area BETWEEN 25 AND 50 THEN'Q2'
+WHEN pct_forest_area BETWEEN 50 AND 75 THEN 'Q3' 
+ELSE 'Q4' END AS Percentiles, 
+COUNT(*) AS no_of_countries
 FROM forestation 
-WHERE pct_forest_area BETWEEN 25 AND 50 AND year = 2016;
-
--- Q3
-SELECT COUNT(*)
-FROM forestation 
-WHERE pct_forest_area BETWEEN 50 AND 75 AND year = 2016;
-
--- Q4 
-SELECT COUNT(*)
-FROM forestation 
-WHERE pct_forest_area > 75 AND year = 2016;
+WHERE year = 2016 
+GROUP BY 1;
 
 -- How many countries had a percent forestation higher than the United States in 2016? 
 

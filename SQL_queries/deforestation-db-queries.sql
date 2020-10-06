@@ -184,7 +184,7 @@ WHEN pct_forest_area BETWEEN 50 AND 75 THEN 'Q3'
 ELSE 'Q4' END AS Percentiles, 
 COUNT(*) AS no_of_countries
 FROM forestation 
-WHERE year = 2016 
+WHERE year = 2016 AND country_name NOT LIKE 'World'
 GROUP BY 1;
 
 -- How many countries had a percent forestation higher than the United States in 2016? 

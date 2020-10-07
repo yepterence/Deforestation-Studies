@@ -179,12 +179,12 @@ ORDER BY 3 DESC;
 -- Using CASE WHEN to include if-else logic allows us to filter on multiple clauses at the same time
 
 SELECT CASE WHEN pct_forest_area < 25 THEN 'Q1' 
-WHEN pct_forest_area BETWEEN 25 AND 50 THEN'Q2'
-WHEN pct_forest_area BETWEEN 50 AND 75 THEN 'Q3' 
-ELSE 'Q4' END AS Percentiles, 
+ WHEN pct_forest_area >= 25 AND pct_forest_area < 50 THEN'Q2'
+ WHEN pct_forest_area  >= 50 AND pct_forest_area < 75 THEN 'Q3' 
+ WHEN pct_forest_area >= 75 THEN 'Q4' END AS Percentiles, 
 COUNT(*) AS no_of_countries
 FROM forestation 
-WHERE year = 2016 AND country_name NOT LIKE 'World'
+WHERE year = 2016 AND country_name NOT LIKE 'World' AND pct_forest_area IS NOT NULL
 GROUP BY 1;
 
 -- How many countries had a percent forestation higher than the United States in 2016? 
